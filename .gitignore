@@ -1,0 +1,7 @@
+.DS_Store
+_build/
+.mooncakes/
+.moonagent/
+coverage.xml
+coverage-html/
+uncovered.log
