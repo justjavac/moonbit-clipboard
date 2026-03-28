@@ -85,6 +85,8 @@ jobs:
   verify:
     name: Verify Generated Files
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -124,6 +126,50 @@ jobs:
         shell: bash
         run: moon coverage analyze -p justjavac/clipboard -- -f html -o coverage-html
 
+      - name: Prepare coverage badge data
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        id: coverage_badge
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          total_line="$(grep -m1 '^Total:' coverage-summary.txt || true)"
+          if [ -z "$total_line" ]; then
+            echo "Could not find a Total line in coverage-summary.txt" >&2
+            exit 1
+          fi
+
+          covered="$(echo "$total_line" | sed -E 's/^Total:[[:space:]]*([0-9]+)\/([0-9]+).*$/\1/')"
+          total="$(echo "$total_line" | sed -E 's/^Total:[[:space:]]*([0-9]+)\/([0-9]+).*$/\2/')"
+
+          if [ "$total" = "0" ]; then
+            percentage="0.0"
+          else
+            percentage="$(awk -v covered="$covered" -v total="$total" 'BEGIN { printf "%.1f", (covered / total) * 100 }')"
+          fi
+
+          if awk "BEGIN { exit !($percentage >= 90) }"; then
+            color="brightgreen"
+          elif awk "BEGIN { exit !($percentage >= 80) }"; then
+            color="green"
+          elif awk "BEGIN { exit !($percentage >= 70) }"; then
+            color="yellowgreen"
+          elif awk "BEGIN { exit !($percentage >= 60) }"; then
+            color="yellow"
+          elif awk "BEGIN { exit !($percentage >= 50) }"; then
+            color="orange"
+          else
+            color="red"
+          fi
+
+          mkdir -p badge-out/badges
+          cat > badge-out/badges/coverage.json <<EOF
+          {"schemaVersion":1,"label":"coverage","message":"${percentage}%","color":"${color}"}
+          EOF
+          touch badge-out/.nojekyll
+
+          echo "percentage=${percentage}" >> "$GITHUB_OUTPUT"
+
       - name: Upload coverage artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -133,13 +179,55 @@ jobs:
             coverage.xml
             coverage-html
 
+      - name: Publish coverage badge data
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          BADGE_BRANCH: badge-data
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          rm -rf badge-branch
+          git fetch origin "${BADGE_BRANCH}" || true
+
+          if git ls-remote --exit-code --heads origin "${BADGE_BRANCH}" >/dev/null 2>&1; then
+            git worktree add badge-branch "origin/${BADGE_BRANCH}"
+            cd badge-branch
+            git switch "${BADGE_BRANCH}"
+          else
+            git worktree add --detach badge-branch
+            cd badge-branch
+            git switch --orphan "${BADGE_BRANCH}"
+          fi
+
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
+          cp -R ../badge-out/. .
+
+          git add badges/coverage.json .nojekyll
+          if git diff --cached --quiet; then
+            echo "Coverage badge data is unchanged."
+            exit 0
+          fi
+
+          git commit -m "Update coverage badge"
+          git push origin "${BADGE_BRANCH}"
+
       - name: Publish coverage summary
         if: always()
+        env:
+          BADGE_PERCENTAGE: ${{ steps.coverage_badge.outputs.percentage }}
         shell: bash
         run: |
           {
             echo "## Coverage Summary"
             echo
+            if [ -n "$BADGE_PERCENTAGE" ]; then
+              echo "- Badge coverage: ${BADGE_PERCENTAGE}%"
+              echo
+            fi
             echo '```text'
             cat coverage-summary.txt
             echo '```'
