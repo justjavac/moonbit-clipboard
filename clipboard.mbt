@@ -89,7 +89,7 @@ fn read_text_with(
   if supported {
     read_text_result(true, read(), get_error_code(), get_error_message())
   } else {
-    read_text_result(false, @utf8.encode(""), 0, @utf8.encode(""))
+    Err(unsupported_error_message())
   }
 }
 
@@ -103,7 +103,7 @@ fn write_text_with(
   if supported {
     write_text_result(true, write(@utf8.encode(text)), get_error_message())
   } else {
-    write_text_result(false, 1, @utf8.encode(""))
+    Err(unsupported_error_message())
   }
 }
 
@@ -111,9 +111,8 @@ fn write_text_with(
 /// Returns `true` when the current native target has a clipboard backend that
 /// this package knows how to call.
 ///
-/// This only reports platform-level support. On Linux, runtime tools such as
-/// `wl-copy`, `wl-paste`, `xclip`, or `xsel` may still be required for actual
-/// clipboard access to succeed.
+/// On Unix-like systems this also checks whether a supported clipboard backend
+/// is available on `PATH`.
 pub fn is_supported() -> Bool {
   platform_supported_ffi()
 }
