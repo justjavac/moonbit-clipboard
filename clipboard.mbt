@@ -108,16 +108,36 @@ fn write_text_with(
 }
 
 ///|
+/// Returns `true` when the current native target has a clipboard backend that
+/// this package knows how to call.
+///
+/// This only reports platform-level support. On Linux, runtime tools such as
+/// `wl-copy`, `wl-paste`, `xclip`, or `xsel` may still be required for actual
+/// clipboard access to succeed.
 pub fn is_supported() -> Bool {
   platform_supported_ffi()
 }
 
 ///|
+/// Verifies that the current native platform is supported by this package.
+///
+/// Returns `Ok(())` on supported platforms and an explanatory `Err(String)` on
+/// unsupported targets. Use this when you want to fail fast before attempting a
+/// clipboard read or write.
 pub fn ensure_supported() -> Result[Unit, String] {
   ensure_supported_result(is_supported())
 }
 
 ///|
+/// Reads the current clipboard text decoded from UTF-8.
+///
+/// The underlying implementation uses `@utf8.decode_lossy`, so any invalid
+/// UTF-8 byte sequences are replaced with the Unicode replacement character
+/// (U+FFFD) instead of causing an error.
+///
+/// Successful reads return `Ok(Some(text))`. If the clipboard currently has no
+/// text content, this returns `Ok(None)`. Unsupported platforms and backend
+/// failures are reported as `Err(String)`.
 pub fn read_text() -> Result[String?, String] {
   read_text_with(
     is_supported(),
@@ -128,6 +148,11 @@ pub fn read_text() -> Result[String?, String] {
 }
 
 ///|
+/// Replaces the current clipboard text with `text`.
+///
+/// Returns `Ok(())` when the write succeeds. Unsupported platforms and backend
+/// failures are reported as `Err(String)`. Passing an empty string clears the
+/// clipboard text for backends that model an empty clipboard as empty text.
 pub fn write_text(text : String) -> Result[Unit, String] {
   write_text_with(is_supported(), text, write_text_ffi, last_error_message_ffi)
 }

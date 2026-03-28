@@ -4,26 +4,20 @@
 
 Cross-platform native clipboard helpers for MoonBit.
 
-This package provides a synchronous text clipboard API for Windows, macOS, and
-Linux native builds.
+`justjavac/clipboard` provides a small synchronous API for reading and writing
+UTF-8 text on Windows, macOS, and Linux native builds. The package is focused
+on plain text clipboard access and keeps the public surface intentionally small.
 
-CI uploads coverage artifacts for each workflow run. You can view the package
-documentation at <https://mooncakes.io/docs/justjavac/clipboard>.
+CI uploads coverage artifacts for each workflow run. Package documentation is
+published at <https://mooncakes.io/docs/justjavac/clipboard>.
 
-## Features
+## Highlights
 
-- `read_text() -> Result[String?, String]`
-- `write_text(String) -> Result[Unit, String]`
-- `is_supported()` and `ensure_supported()`
+- Small public API: `is_supported`, `ensure_supported`, `read_text`, `write_text`
 - Native-only package with platform-specific backends
-
-## Platform Backends
-
-- Windows: Win32 clipboard API
-- macOS: `pbcopy` and `pbpaste`
-- Linux: tries `wl-copy` / `wl-paste`, then `xclip`, then `xsel`
-
-On Linux, at least one clipboard backend tool must be available at runtime.
+- `read_text()` returns `Ok(None)` when the clipboard text is empty
+- Linux support checks `wl-copy` / `wl-paste`, then `xclip`, then `xsel`
+- Optional integration test that round-trips through the real system clipboard
 
 ## Install
 
@@ -31,27 +25,52 @@ On Linux, at least one clipboard backend tool must be available at runtime.
 moon add justjavac/clipboard
 ```
 
-## Example
+This module supports the `native` target only.
 
-```mbt nocheck
-///|
-fn copy_message() -> Result[Unit, String] {
-  @clipboard.write_text("Hello from MoonBit!")
-}
+## Quick Start
 
+```mbt check
 ///|
-fn load_message() -> Result[String?, String] {
-  @clipboard.read_text()
+test "clipboard api can be called" {
+  ignore(@clipboard.is_supported())
+  ignore(@clipboard.ensure_supported())
+  ignore(@clipboard.read_text())
+  ignore(@clipboard.write_text("Hello from MoonBit!"))
 }
 ```
 
-## Examples Directory
+## API Behavior
+
+- `is_supported() -> Bool`
+  Reports whether the current native platform has a backend implemented by this
+  package.
+- `ensure_supported() -> Result[Unit, String]`
+  Returns `Ok(())` on supported platforms and a descriptive error otherwise.
+- `read_text() -> Result[String?, String]`
+  Returns `Ok(Some(text))` for clipboard text, `Ok(None)` for empty text, and
+  `Err(String)` when clipboard access fails.
+- `write_text(String) -> Result[Unit, String]`
+  Replaces the current clipboard text and reports backend failures as
+  `Err(String)`.
+
+## Platform Backends
+
+- Windows: Win32 clipboard API
+- macOS: `pbcopy` and `pbpaste`
+- Linux: tries `wl-copy` / `wl-paste`, then `xclip`, then `xsel`
+
+On Linux, at least one of those command-line tools must be installed and
+available on `PATH` at runtime.
+
+## Examples
+
+This repository ships three small runnable examples:
 
 - `examples/check_support`: probe whether the current native platform is supported
 - `examples/write_text`: write a fixed string into the system clipboard
 - `examples/read_text`: read text from the system clipboard
 
-Run them with:
+Run them from the module root:
 
 ```bash
 moon run examples/check_support
@@ -61,37 +80,31 @@ moon run examples/read_text
 
 ## Testing
 
-Run the default test suite and coverage summary:
+Run the default test suite:
 
 ```bash
 moon test --target native
+```
+
+To inspect coverage:
+
+```bash
 moon coverage analyze -p justjavac/clipboard -- -f summary
 ```
 
-Run the optional clipboard integration test:
+To run the optional integration test against the real clipboard:
 
 ```bash
 $env:MOONBIT_CLIPBOARD_RUN_INTEGRATION_TESTS = "1"
 moon test --target native --filter "integration*"
 ```
 
-The integration test writes a probe string into the system clipboard and then
-tries to restore the previous text content.
-
-## API Surface
-
-```mbt check
-///|
-test "clipboard api is available" {
-  ignore(@clipboard.is_supported)
-  ignore(@clipboard.ensure_supported)
-  ignore(@clipboard.read_text)
-  ignore(@clipboard.write_text)
-}
-```
+The integration test writes a probe string into the system clipboard, reads it
+back, and then attempts to restore the previous clipboard text.
 
 ## Notes
 
-- The package targets `native` only.
-- Empty clipboard text is returned as `Ok(None)`.
-- Backend failures are returned as `Err(String)`.
+- The package is designed for synchronous text clipboard operations only.
+- Errors are surfaced as `Err(String)` to keep the API lightweight for callers.
+- Unsupported targets return a consistent error message from both read and
+  write operations.
