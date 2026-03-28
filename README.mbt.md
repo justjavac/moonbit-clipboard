@@ -1,4 +1,6 @@
-# justjavac/clipboard [![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/badge/coverage-artifacts-blue)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
+# justjavac/clipboard
+
+[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/badge/coverage-artifacts-blue)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
 
 Cross-platform native clipboard helpers for MoonBit.
 
