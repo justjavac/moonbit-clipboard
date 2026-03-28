@@ -129,7 +129,11 @@ pub fn ensure_supported() -> Result[Unit, String] {
 }
 
 ///|
-/// Reads the current clipboard text as UTF-8.
+/// Reads the current clipboard text decoded from UTF-8.
+///
+/// The underlying implementation uses `@utf8.decode_lossy`, so any invalid
+/// UTF-8 byte sequences are replaced with the Unicode replacement character
+/// (U+FFFD) instead of causing an error.
 ///
 /// Successful reads return `Ok(Some(text))`. If the clipboard currently has no
 /// text content, this returns `Ok(None)`. Unsupported platforms and backend
