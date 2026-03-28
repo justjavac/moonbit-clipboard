@@ -1,0 +1,8 @@
+import {
+  "justjavac/clipboard" @clipboard,
+}
+
+options(
+  "is-main": true,
+  "supported-targets": "native",
+)
