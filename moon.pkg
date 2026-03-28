@@ -1,0 +1,13 @@
+import {
+  "moonbitlang/core/encoding/utf8" @utf8,
+}
+
+import {
+  "justjavac/clipboard" @clipboard,
+} for "test"
+
+options(
+  "native-stub": [ "clipboard_native.c" ],
+  "supported-targets": "native",
+  targets: { "clipboard.mbt": [ "native" ] },
+)
