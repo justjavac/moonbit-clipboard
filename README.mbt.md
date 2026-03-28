@@ -1,6 +1,6 @@
 # justjavac/clipboard
 
-[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/justjavac/moonbit-clipboard/badge-data/badges/coverage.json)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
+[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/justjavac/moonbit-clipboard/branch/main/graph/badge.svg)](https://codecov.io/gh/justjavac/moonbit-clipboard) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
 
 Cross-platform native clipboard helpers for MoonBit.
 
@@ -8,9 +8,9 @@ Cross-platform native clipboard helpers for MoonBit.
 UTF-8 text on Windows, macOS, and Linux native builds. The package is focused
 on plain text clipboard access and keeps the public surface intentionally small.
 
-CI uploads coverage artifacts for each workflow run and refreshes the coverage
-badge on pushes to `main`. Package documentation is published at
-<https://mooncakes.io/docs/justjavac/clipboard>.
+CI uploads coverage artifacts for each workflow run. When Codecov is configured,
+the coverage badge reflects the `main` branch coverage. Package documentation is
+published at <https://mooncakes.io/docs/justjavac/clipboard>.
 
 ## Highlights
 
@@ -92,6 +92,9 @@ To inspect coverage:
 ```bash
 moon coverage analyze -p justjavac/clipboard -- -f summary
 ```
+
+To publish coverage from GitHub Actions to the badge, configure the
+`CODECOV_TOKEN` repository secret for Codecov uploads.
 
 To run the optional integration test against the real clipboard:
 
