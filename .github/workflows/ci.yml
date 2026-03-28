@@ -85,6 +85,8 @@ jobs:
   verify:
     name: Verify Generated Files
     runs-on: ubuntu-latest
+    env:
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - name: Checkout
@@ -120,27 +122,10 @@ jobs:
         shell: bash
         run: moon coverage analyze -p justjavac/clipboard -- -f cobertura -o coverage.xml
 
-      - name: Coverage HTML
-        shell: bash
-        run: moon coverage analyze -p justjavac/clipboard -- -f html -o coverage-html
-
-      - name: Upload coverage artifacts
-        uses: actions/upload-artifact@v4
+      - name: Upload coverage to Codecov
+        if: env.CODECOV_TOKEN != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        uses: codecov/codecov-action@v5
         with:
-          name: coverage-report
-          path: |
-            coverage-summary.txt
-            coverage.xml
-            coverage-html
-
-      - name: Publish coverage summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## Coverage Summary"
-            echo
-            echo '```text'
-            cat coverage-summary.txt
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
+          files: coverage.xml
+          fail_ci_if_error: true
+          verbose: true
