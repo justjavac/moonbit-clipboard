@@ -48,12 +48,39 @@ jobs:
         run: moon version
 
       - name: Check
+        id: check
         shell: bash
-        run: moon check --target native
+        run: moon check --target native | tee check.log
 
       - name: Test
+        id: test
         shell: bash
-        run: moon test --target native
+        run: moon test --target native | tee test.log
+
+      - name: Publish test summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Test Summary (${{ matrix.os }})"
+            echo
+            echo "- Check: ${{ steps.check.outcome }}"
+            echo "- Test: ${{ steps.test.outcome }}"
+            echo
+            echo '```text'
+            tail -n 20 test.log || true
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs-${{ matrix.os }}
+          if-no-files-found: ignore
+          path: |
+            check.log
+            test.log
 
   verify:
     name: Verify Generated Files
@@ -87,7 +114,7 @@ jobs:
 
       - name: Coverage summary
         shell: bash
-        run: moon coverage analyze -p justjavac/clipboard -- -f summary
+        run: moon coverage analyze -p justjavac/clipboard -- -f summary | tee coverage-summary.txt
 
       - name: Coverage XML
         shell: bash
@@ -102,5 +129,18 @@ jobs:
         with:
           name: coverage-report
           path: |
+            coverage-summary.txt
             coverage.xml
             coverage-html
+
+      - name: Publish coverage summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Coverage Summary"
+            echo
+            echo '```text'
+            cat coverage-summary.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
