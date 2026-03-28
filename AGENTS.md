@@ -1,51 +1,72 @@
 # Project Agents.md Guide
 
-This is a [MoonBit](https://docs.moonbitlang.com) project.
+This repository is a [MoonBit](https://docs.moonbitlang.com) module for a
+native clipboard package.
 
 You can browse and install extra skills here:
 <https://github.com/moonbitlang/skills>
 
-## Project Structure
+## Repository Layout
 
-- MoonBit packages are organized per directory; each directory contains a
-  `moon.pkg` file listing its dependencies. Each package has its files and
-  blackbox test files (ending in `_test.mbt`) and whitebox test files (ending in
-  `_wbtest.mbt`).
+- The module root contains `moon.mod.json`.
+- The root package is defined by `moon.pkg` and exports `justjavac/clipboard`.
+- Public API lives in `clipboard.mbt`.
+- Native FFI glue lives in `clipboard_native.c`.
+- Blackbox tests live in `*_test.mbt` and whitebox tests live in
+  `*_wbtest.mbt`.
+- `clipboard_integration_test.mbt` is opt-in because it touches the real system
+  clipboard.
+- `examples/` contains runnable example packages.
+- Edit `README.mbt.md`; `README.md` is the repository-facing mirror/symlink.
 
-- In the toplevel directory, there is a `moon.mod.json` file listing module
-  metadata.
+## Project Conventions
 
-## Coding convention
+- MoonBit source is organized in `///|` blocks. Block order is irrelevant, so
+  focused block-by-block edits are preferred.
+- Keep the public API small and stable. If you change exported functions, run
+  `moon info` and review `pkg.generated.mbti`.
+- Add `///` Markdown doc comments to public APIs when behavior changes or new
+  APIs are introduced.
+- Keep README examples aligned with the exported API and current behavior.
+- When touching platform behavior, preserve the documented backend order:
+  Windows Win32 API, macOS `pbcopy`/`pbpaste`, Linux `wl-copy`/`wl-paste` then
+  `xclip` then `xsel`.
+- Prefer keeping deprecated code in `deprecated.mbt` if the package ever grows
+  compatibility shims.
 
-- MoonBit code is organized in block style, each block is separated by `///|`,
-  the order of each block is irrelevant. In some refactorings, you can process
-  block by block independently.
+## Validation Workflow
 
-- Try to keep deprecated blocks in file called `deprecated.mbt` in each
-  directory.
+Use this order unless the task requires something narrower:
 
-## Tooling
+```powershell
+moon check
+moon test --target native
+moon info
+moon fmt
+```
 
-- `moon fmt` is used to format your code properly.
+Additional repo-specific checks:
 
-- `moon ide` provides project navigation helpers like `peek-def`, `outline`, and
-  `find-references`. See $moonbit-agent-guide for details.
+- Run `moon test --target native --filter "integration*"` only when
+  `MOONBIT_CLIPBOARD_RUN_INTEGRATION_TESTS` is intentionally enabled.
+- If README examples or doc comments include MoonBit code blocks, make sure they
+  still typecheck as documentation tests.
+- Review `pkg.generated.mbti` after `moon info`; unexpected API drift is usually
+  a mistake.
 
-- `moon info` is used to update the generated interface of the package, each
-  package has a generated interface file `.mbti`, it is a brief formal
-  description of the package. If nothing in `.mbti` changes, this means your
-  change does not bring the visible changes to the external package users, it is
-  typically a safe refactoring.
+## Testing Guidance
 
-- In the last step, run `moon info && moon fmt` to update the interface and
-  format the code. Check the diffs of `.mbti` file to see if the changes are
-  expected.
+- Prefer assertion-style tests for stable helper behavior.
+- Keep unit coverage in `clipboard_test.mbt` and `clipboard_wbtest.mbt`.
+- Use the integration test only for real clipboard roundtrips and restore the
+  previous clipboard content when possible.
+- If behavior changes user-facing output or documented examples, update the
+  corresponding README sections in the same branch.
 
-- Run `moon test` to check tests pass. MoonBit supports snapshot testing; when
-  changes affect outputs, run `moon test --update` to refresh snapshots.
+## Tooling Notes
 
-- Prefer `assert_eq` or `assert_true(pattern is Pattern(...))` for results that
-  are stable or very unlikely to change. Use snapshot tests to record current
-  behavior. For solid, well-defined results (e.g. scientific computations),
-  prefer assertion tests. You can use `moon coverage analyze > uncovered.log` to
-  see which parts of your code are not covered by tests.
+- `moon ide` is available for navigation helpers such as `peek-def`, `outline`,
+  and `find-references`.
+- `moon coverage analyze > uncovered.log` is useful when expanding tests.
+- This package supports the `native` target only; avoid suggesting JS/Wasm
+  validation for normal changes.
