@@ -13,6 +13,7 @@
 #endif
 #else
 #include <sys/wait.h>
+#include <unistd.h>
 #define MB_POPEN popen
 #define MB_PCLOSE pclose
 #endif
@@ -22,8 +23,16 @@
 #define MB_STATUS_PERMISSION_DENIED 2
 #define MB_STATUS_BACKEND_FAILURE 3
 
-static int32_t mb_last_error_code = MB_STATUS_OK;
-static char mb_last_error_message[512] = "";
+#if defined(_MSC_VER)
+#define MB_THREAD_LOCAL __declspec(thread)
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define MB_THREAD_LOCAL _Thread_local
+#else
+#define MB_THREAD_LOCAL
+#endif
+
+static MB_THREAD_LOCAL int32_t mb_last_error_code = MB_STATUS_OK;
+static MB_THREAD_LOCAL char mb_last_error_message[512] = "";
 
 static void mb_set_error(int32_t code, const char *message) {
   mb_last_error_code = code;
@@ -41,6 +50,69 @@ static moonbit_bytes_t mb_make_bytes_from_buffer(const char *buf, size_t len) {
   }
   return out;
 }
+
+#ifndef _WIN32
+static int mb_command_exists(const char *name) {
+  const char *path = getenv("PATH");
+  if (path == NULL || *path == '\0') {
+    return 0;
+  }
+
+  size_t name_len = strlen(name);
+  const char *segment = path;
+
+  while (1) {
+    const char *separator = strchr(segment, ':');
+    size_t segment_len =
+      separator == NULL ? strlen(segment) : (size_t)(separator - segment);
+    size_t candidate_len = segment_len + 1 + name_len + 1;
+    char *candidate = (char *)malloc(candidate_len);
+    if (candidate == NULL) {
+      return 0;
+    }
+
+    if (segment_len > 0) {
+      memcpy(candidate, segment, segment_len);
+      candidate[segment_len] = '/';
+      memcpy(candidate + segment_len + 1, name, name_len + 1);
+    } else {
+      memcpy(candidate, name, name_len + 1);
+    }
+
+    int found = access(candidate, X_OK) == 0;
+    free(candidate);
+    if (found) {
+      return 1;
+    }
+
+    if (separator == NULL) {
+      break;
+    }
+    segment = separator + 1;
+  }
+
+  return 0;
+}
+
+static int mb_unix_clipboard_backend_available(void) {
+#if defined(__APPLE__)
+  return mb_command_exists("pbcopy") && mb_command_exists("pbpaste");
+#elif defined(__linux__)
+  if (mb_command_exists("wl-copy") && mb_command_exists("wl-paste")) {
+    return 1;
+  }
+  if (mb_command_exists("xclip")) {
+    return 1;
+  }
+  if (mb_command_exists("xsel")) {
+    return 1;
+  }
+  return 0;
+#else
+  return 0;
+#endif
+}
+#endif
 
 #ifdef _WIN32
 static int mb_win32_error_to_status(DWORD err) {
@@ -341,8 +413,10 @@ static int mb_try_write_clipboard(const char *text, size_t len) {
 }
 
 MOONBIT_FFI_EXPORT int32_t mb_clipboard_platform_supported(void) {
-#if defined(_WIN32) || defined(__APPLE__) || defined(__linux__)
+#if defined(_WIN32)
   return 1;
+#elif defined(__APPLE__) || defined(__linux__)
+  return mb_unix_clipboard_backend_available();
 #else
   return 0;
 #endif

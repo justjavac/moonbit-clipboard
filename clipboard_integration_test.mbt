@@ -24,6 +24,14 @@ fn integration_tests_enabled() -> Bool {
 }
 
 ///|
+fn restore_clipboard_text(original : String?) -> Result[Unit, String] {
+  match original {
+    Some(text) => @clipboard.write_text(text)
+    None => @clipboard.write_text("")
+  }
+}
+
+///|
 test "integration write and read roundtrip" {
   guard integration_tests_enabled() else { return }
 
@@ -43,24 +51,15 @@ test "integration write and read roundtrip" {
     Err(error) => fail("failed to write clipboard probe text: " + error)
   }
 
-  let roundtrip = match @clipboard.read_text() {
-    Ok(value) => value
-    Err(error) => fail("failed to read clipboard probe text: " + error)
-  }
-  assert_eq(roundtrip, Some(probe))
+  let roundtrip_result = @clipboard.read_text()
 
-  match original {
-    Some(text) =>
-      match @clipboard.write_text(text) {
-        Ok(_) => ()
-        Err(error) =>
-          fail("failed to restore original clipboard text: " + error)
-      }
-    None =>
-      match @clipboard.write_text("") {
-        Ok(_) => ()
-        Err(error) =>
-          fail("failed to clear clipboard text after test: " + error)
-      }
+  match restore_clipboard_text(original) {
+    Ok(_) => ()
+    Err(error) => fail("failed to restore original clipboard text: " + error)
+  }
+
+  match roundtrip_result {
+    Ok(value) => assert_eq(value, Some(probe))
+    Err(error) => fail("failed to read clipboard probe text: " + error)
   }
 }
