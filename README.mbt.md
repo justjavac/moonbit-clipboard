@@ -1,12 +1,11 @@
-# justjavac/clipboard [![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/badge/coverage-report-blue)](https://justjavac.github.io/moonbit-clipboard/) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
+# justjavac/clipboard [![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Coverage](https://img.shields.io/badge/coverage-artifacts-blue)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
 
 Cross-platform native clipboard helpers for MoonBit.
 
 This package provides a synchronous text clipboard API for Windows, macOS, and
 Linux native builds.
 
-You can view the latest coverage report for the `main` branch at
-<https://justjavac.github.io/moonbit-clipboard/>. You can view the package
+CI uploads coverage artifacts for each workflow run. You can view the package
 documentation at <https://mooncakes.io/docs/justjavac/clipboard>.
 
 ## Features
