@@ -8,9 +8,9 @@ Cross-platform native clipboard helpers for MoonBit.
 UTF-8 text on Windows, macOS, and Linux native builds. The package is focused
 on plain text clipboard access and keeps the public surface intentionally small.
 
-CI uploads coverage artifacts for each workflow run. When Codecov is configured,
-the coverage badge reflects the `main` branch coverage. Package documentation is
-published at <https://mooncakes.io/docs/justjavac/clipboard>.
+CI publishes a coverage summary for each workflow run. When Codecov is
+configured, the coverage badge reflects the `main` branch coverage. Package
+documentation is published at <https://mooncakes.io/docs/justjavac/clipboard>.
 
 ## Highlights
 
