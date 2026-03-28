@@ -129,15 +129,3 @@ jobs:
           files: coverage.xml
           fail_ci_if_error: true
           verbose: true
-
-      - name: Publish coverage summary
-        if: always()
-        shell: bash
-        run: |
-          {
-            echo "## Coverage Summary"
-            echo
-            echo '```text'
-            cat coverage-summary.txt
-            echo '```'
-          } >> "$GITHUB_STEP_SUMMARY"
