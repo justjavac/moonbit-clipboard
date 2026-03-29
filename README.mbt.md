@@ -66,3 +66,6 @@ Optional integration test:
 $env:MOONBIT_CLIPBOARD_RUN_INTEGRATION_TESTS = "1"
 moon test --target native --filter "integration*"
 ```
+
+For the README coverage badge, configure the `CODECOV_TOKEN` repository secret
+in GitHub Actions.
