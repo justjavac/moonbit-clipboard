@@ -474,25 +474,3 @@ MOONBIT_FFI_EXPORT int32_t mb_clipboard_last_error_code(void) {
 MOONBIT_FFI_EXPORT moonbit_bytes_t mb_clipboard_last_error_message(void) {
   return mb_make_bytes_from_buffer(mb_last_error_message, strlen(mb_last_error_message));
 }
-
-MOONBIT_FFI_EXPORT moonbit_bytes_t mb_clipboard_test_getenv(moonbit_bytes_t name) {
-  size_t len = (size_t)Moonbit_array_length(name);
-  char *key = (char *)malloc(len + 1);
-  if (key == NULL) {
-    return moonbit_make_bytes(0, 0);
-  }
-
-  if (len > 0) {
-    memcpy(key, name, len);
-  }
-  key[len] = '\0';
-
-  const char *value = getenv(key);
-  free(key);
-
-  if (value == NULL) {
-    return moonbit_make_bytes(0, 0);
-  }
-
-  return mb_make_bytes_from_buffer(value, strlen(value));
-}
