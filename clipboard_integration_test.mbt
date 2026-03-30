@@ -1,4 +1,5 @@
 ///|
+/// Returns whether clipboard integration tests are explicitly enabled.
 fn integration_tests_enabled() -> Bool {
   match @env.get_env_var("MOONBIT_CLIPBOARD_RUN_INTEGRATION_TESTS") {
     Some("1") => true
@@ -10,6 +11,7 @@ fn integration_tests_enabled() -> Bool {
 }
 
 ///|
+/// Restores the clipboard text captured before an integration test ran.
 fn restore_clipboard_text(original : String?) -> Result[Unit, String] {
   match original {
     Some(text) => @clipboard.write_text(text)
