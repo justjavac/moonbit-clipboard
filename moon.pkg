@@ -2,8 +2,13 @@ import {
   "moonbitlang/core/encoding/utf8",
 }
 
+import {
+  "moonbitlang/core/env",
+} for "test"
+
+supported_targets = "native"
+
 options(
   "native-stub": [ "clipboard_native.c" ],
-  "supported-targets": "native",
   targets: { "clipboard.mbt": [ "native" ] },
 )
