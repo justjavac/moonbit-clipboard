@@ -1,6 +1,6 @@
 # justjavac/clipboard
 
-[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![codecov](https://codecov.io/gh/justjavac/moonbit-clipboard/branch/main/graph/badge.svg)](https://codecov.io/gh/justjavac/moonbit-clipboard) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
+[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![coverage](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?label=coverage)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![linux](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=linux&label=linux)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![macos](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=macos&label=macOS)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![windows](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=windows&label=windows)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
 
 Cross-platform native clipboard helpers for MoonBit.
 
