@@ -1,11 +1,9 @@
 # justjavac/clipboard
 
-[![CI](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml/badge.svg)](https://github.com/justjavac/moonbit-clipboard/actions/workflows/ci.yml) [![coverage](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?label=coverage)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![linux](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=linux&label=linux)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![macos](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=macos&label=macOS)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![windows](https://img.shields.io/codecov/c/github/justjavac/moonbit-clipboard/main?flag=windows&label=windows)](https://app.codecov.io/gh/justjavac/moonbit-clipboard) [![Docs](https://img.shields.io/badge/docs-mooncakes.io-green)](https://mooncakes.io/docs/justjavac/clipboard)
+Cross-platform native clipboard helpers for MoonBit `native` builds.
 
-Cross-platform native clipboard helpers for MoonBit.
-
-This package provides a small synchronous API for reading and writing UTF-8
-text on Windows, macOS, and Linux native builds.
+This package reads and writes UTF-8 text on Windows, macOS, and Linux with a
+small synchronous API.
 
 ## Install
 
@@ -13,31 +11,32 @@ text on Windows, macOS, and Linux native builds.
 moon add justjavac/clipboard
 ```
 
-This package supports the `native` target only.
-
-## Example
+## Quick Start
 
 ```mbt check
 ///|
-test "clipboard api can be called" {
-  ignore(@clipboard.is_supported())
-  ignore(@clipboard.ensure_supported())
-  ignore(@clipboard.read_text())
-  ignore(@clipboard.write_text("Hello from MoonBit!"))
+test "probe clipboard support and read text" {
+  match @clipboard.ensure_supported() {
+    Ok(_) => ()
+    Err(message) => assert_true(!message.is_empty())
+  }
+
+  match @clipboard.read_text() {
+    Ok(Some(_text)) => ()
+    Ok(None) => ()
+    Err(message) => assert_true(!message.is_empty())
+  }
 }
 ```
 
 ## API
 
-- `is_supported() -> Bool`
-- `ensure_supported() -> Result[Unit, String]`
-- `read_text() -> Result[String?, String]`
-- `write_text(String) -> Result[Unit, String]`
+- `is_supported()`: Returns whether a supported backend is available.
+- `ensure_supported()`: Returns `Ok(())` or an explanatory `Err(String)`.
+- `read_text()`: Returns `Ok(Some(text))`, `Ok(None)`, or `Err(String)`.
+- `write_text(text)`: Writes UTF-8 text and returns `Ok(())` or `Err(String)`.
 
-`read_text()` returns `Ok(None)` when the clipboard text is empty. Read and
-write failures are returned as `Err(String)`.
-
-## Platforms
+## Platform Backends
 
 - Windows: Win32 clipboard API
 - macOS: `pbcopy` and `pbpaste`
@@ -49,24 +48,19 @@ On Linux, at least one supported clipboard tool must be available on `PATH`.
 
 ```bash
 moon run examples/check_support
-moon run examples/write_text
 moon run examples/read_text
+moon run examples/write_text
 ```
 
-## Testing
+## Test
 
 ```bash
 moon test --target native
-moon coverage analyze -p justjavac/clipboard -- -f summary
 ```
 
-Optional integration test:
+Integration test:
 
 ```bash
 $env:MOONBIT_CLIPBOARD_RUN_INTEGRATION_TESTS = "1"
 moon test --target native --filter "integration*"
 ```
-
-## License
-
-MIT. See [LICENSE](LICENSE).
