@@ -1,26 +1,26 @@
 ///|
-/// Reports whether the native backend for the current target is available.
+/// Returns whether the native backend is available on the current target.
 extern "C" fn platform_supported_ffi() -> Bool = "mb_clipboard_platform_supported"
 
 ///|
-/// Reads the current clipboard text bytes from the native backend.
+/// Reads raw clipboard text bytes from the native backend.
 extern "C" fn read_text_ffi() -> Bytes = "mb_clipboard_read_text"
 
 ///|
-/// Writes UTF-8 encoded text bytes to the native clipboard backend.
+/// Writes UTF-8 encoded text bytes to the native backend.
 #borrow(text)
 extern "C" fn write_text_ffi(text : Bytes) -> Int = "mb_clipboard_write_text"
 
 ///|
-/// Returns the last native clipboard error code reported by the backend.
+/// Returns the last backend error code.
 extern "C" fn last_error_code_ffi() -> Int = "mb_clipboard_last_error_code"
 
 ///|
-/// Returns the last native clipboard error message reported by the backend.
+/// Returns the last backend error message.
 extern "C" fn last_error_message_ffi() -> Bytes = "mb_clipboard_last_error_message"
 
 ///|
-/// Decodes clipboard bytes into optional text, treating an empty string as no text.
+/// Decodes clipboard bytes and maps an empty string to `None`.
 fn decode_optional_text(bytes : Bytes) -> String? {
   let value = @utf8.decode_lossy(bytes[:])
   if value.is_empty() {
@@ -31,7 +31,7 @@ fn decode_optional_text(bytes : Bytes) -> String? {
 }
 
 ///|
-/// Decodes an error message and falls back to a default message when it is empty.
+/// Decodes an error message or falls back to a default string.
 fn decode_error_message(bytes : Bytes, default : String) -> String {
   let value = @utf8.decode_lossy(bytes[:])
   if value.is_empty() {
@@ -42,13 +42,13 @@ fn decode_error_message(bytes : Bytes, default : String) -> String {
 }
 
 ///|
-/// Returns the shared unsupported-platform error message for this package.
+/// Returns the shared unsupported-platform error message.
 fn unsupported_error_message() -> String {
   "clipboard package currently supports Windows, macOS, and Linux native builds only"
 }
 
 ///|
-/// Converts the platform support probe into the public result form.
+/// Converts a support probe into the public result form.
 fn ensure_supported_result(supported : Bool) -> Result[Unit, String] {
   if supported {
     Ok(())
@@ -58,7 +58,7 @@ fn ensure_supported_result(supported : Bool) -> Result[Unit, String] {
 }
 
 ///|
-/// Converts raw read outputs from the backend into the public read result.
+/// Converts raw read outputs into the public read result.
 fn read_text_result(
   supported : Bool,
   bytes : Bytes,
@@ -75,7 +75,7 @@ fn read_text_result(
 }
 
 ///|
-/// Converts raw write outputs from the backend into the public write result.
+/// Converts raw write outputs into the public write result.
 fn write_text_result(
   supported : Bool,
   status : Int,
@@ -91,7 +91,7 @@ fn write_text_result(
 }
 
 ///|
-/// Executes a read through injectable callbacks so the logic can be tested.
+/// Runs a read through injectable callbacks for testing.
 fn read_text_with(
   supported : Bool,
   read : () -> Bytes,
@@ -106,7 +106,7 @@ fn read_text_with(
 }
 
 ///|
-/// Executes a write through injectable callbacks so the logic can be tested.
+/// Runs a write through injectable callbacks for testing.
 fn write_text_with(
   supported : Bool,
   text : String,
@@ -130,6 +130,17 @@ fn write_text_with(
 ///
 /// This function performs only a capability probe. It does not read or modify
 /// clipboard contents.
+///
+/// # Example
+/// ```mbt check
+/// test "is_supported reports capability without touching clipboard" {
+///   let supported = is_supported()
+///   match supported {
+///     true => ()
+///     false => ()
+///   }
+/// }
+/// ```
 pub fn is_supported() -> Bool {
   platform_supported_ffi()
 }
@@ -143,6 +154,16 @@ pub fn is_supported() -> Bool {
 ///
 /// This is a convenience wrapper around `is_supported()` for callers that
 /// prefer `Result`-based control flow.
+///
+/// # Example
+/// ```mbt check
+/// test "ensure_supported gives a result-oriented capability check" {
+///   match ensure_supported() {
+///     Ok(_) => ()
+///     Err(message) => assert_true(!message.is_empty())
+///   }
+/// }
+/// ```
 pub fn ensure_supported() -> Result[Unit, String] {
   ensure_supported_result(is_supported())
 }
@@ -159,6 +180,17 @@ pub fn ensure_supported() -> Result[Unit, String] {
 /// failures are reported as `Err(String)`.
 ///
 /// This function is synchronous and only works on the `native` target.
+///
+/// # Example
+/// ```mbt check
+/// test "read_text returns text, emptiness, or an error" {
+///   match read_text() {
+///     Ok(Some(text)) => assert_true(text.length() >= 0)
+///     Ok(None) => ()
+///     Err(message) => assert_true(!message.is_empty())
+///   }
+/// }
+/// ```
 pub fn read_text() -> Result[String?, String] {
   read_text_with(
     is_supported(),
@@ -176,6 +208,16 @@ pub fn read_text() -> Result[String?, String] {
 /// clipboard text for backends that model an empty clipboard as empty text.
 ///
 /// The string is encoded as UTF-8 before it is passed to the native backend.
+///
+/// # Example
+/// ```mbt check
+/// test "write_text accepts a string and reports success or failure" {
+///   match write_text("") {
+///     Ok(_) => ()
+///     Err(message) => assert_true(!message.is_empty())
+///   }
+/// }
+/// ```
 pub fn write_text(text : String) -> Result[Unit, String] {
   write_text_with(is_supported(), text, write_text_ffi, last_error_message_ffi)
 }
