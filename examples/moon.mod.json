@@ -1,0 +1,22 @@
+{
+  "name": "justjavac/clipboard/examples",
+  "version": "0.1.5",
+  "deps": {
+    "justjavac/clipboard": {
+      "path": ".."
+    }
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/justjavac/moonbit-clipboard/tree/main/examples",
+  "license": "MIT",
+  "keywords": [
+    "clipboard",
+    "native",
+    "examples"
+  ],
+  "description": "Examples for justjavac/clipboard.",
+  "source": "",
+  "warn-list": "",
+  "preferred-target": "native",
+  "supported-targets": "+native"
+}
