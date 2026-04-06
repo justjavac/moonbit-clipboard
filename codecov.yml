@@ -25,13 +25,13 @@ coverage:
 flags:
   linux:
     paths:
-      - clipboard.mbt
+      - src/
   macos:
     paths:
-      - clipboard.mbt
+      - src/
   windows:
     paths:
-      - clipboard.mbt
+      - src/
 
 comment:
   layout: "diff, flags, files"
