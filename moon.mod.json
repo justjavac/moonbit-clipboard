@@ -1,7 +1,7 @@
 {
   "name": "justjavac/clipboard",
-  "version": "0.1.4",
-  "readme": "README.md",
+  "version": "0.1.5",
+  "readme": "README.mbt.md",
   "repository": "https://github.com/justjavac/moonbit-clipboard",
   "license": "MIT",
   "keywords": [
@@ -13,7 +13,7 @@
     "linux"
   ],
   "description": "Cross-platform native clipboard helpers for MoonBit.",
-  "source": "",
+  "source": "src",
   "warn-list": "",
   "preferred-target": "native",
   "supported-targets": "+native"
