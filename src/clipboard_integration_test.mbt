@@ -47,7 +47,7 @@ test "integration write and read roundtrip" {
   }
 
   match roundtrip_result {
-    Ok(value) => assert_eq(value, Some(probe))
+    Ok(value) => assert_true(value == Some(probe))
     Err(error) => fail("failed to read clipboard probe text: " + error)
   }
 }

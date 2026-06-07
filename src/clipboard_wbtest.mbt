@@ -1,14 +1,13 @@
 ///|
 test "empty clipboard text decodes to None" {
-  assert_eq(decode_optional_text(@utf8.encode("")), None)
+  assert_true(decode_optional_text(@utf8.encode("")) == None)
 }
 
 ///|
 test "utf8 clipboard text decodes to Some" {
-  assert_eq(decode_optional_text(@utf8.encode("hello")), Some("hello"))
-  assert_eq(
-    decode_optional_text(@utf8.encode("hello world")),
-    Some("hello world"),
+  assert_true(decode_optional_text(@utf8.encode("hello")) == Some("hello"))
+  assert_true(
+    decode_optional_text(@utf8.encode("hello world")) == Some("hello world"),
   )
 }
 
@@ -23,87 +22,88 @@ test "error message falls back when ffi message is empty" {
 
 ///|
 test "ensure_supported_result covers both outcomes" {
-  assert_eq(ensure_supported_result(true), Ok(()))
-  assert_eq(ensure_supported_result(false), Err(unsupported_error_message()))
+  assert_true(ensure_supported_result(true) == Ok(()))
+  assert_true(
+    ensure_supported_result(false) == Err(unsupported_error_message()),
+  )
 }
 
 ///|
 test "read_text_result handles unsupported clipboard" {
-  assert_eq(
-    read_text_result(false, @utf8.encode("ignored"), 0, @utf8.encode("ignored")),
+  assert_true(
+    read_text_result(false, @utf8.encode("ignored"), 0, @utf8.encode("ignored")) ==
     Err(unsupported_error_message()),
   )
 }
 
 ///|
 test "read_text_result handles success cases" {
-  assert_eq(
-    read_text_result(true, @utf8.encode(""), 0, @utf8.encode("")),
-    Ok(None),
+  assert_true(
+    read_text_result(true, @utf8.encode(""), 0, @utf8.encode("")) == Ok(None),
   )
-  assert_eq(
-    read_text_result(true, @utf8.encode("hello"), 0, @utf8.encode("")),
+  assert_true(
+    read_text_result(true, @utf8.encode("hello"), 0, @utf8.encode("")) ==
     Ok(Some("hello")),
   )
 }
 
 ///|
 test "read_text_result handles explicit and fallback errors" {
-  assert_eq(
+  assert_true(
     read_text_result(
       true,
       @utf8.encode("ignored"),
       1,
       @utf8.encode("backend failed"),
-    ),
+    ) ==
     Err("backend failed"),
   )
-  assert_eq(
-    read_text_result(true, @utf8.encode("ignored"), 1, @utf8.encode("")),
+  assert_true(
+    read_text_result(true, @utf8.encode("ignored"), 1, @utf8.encode("")) ==
     Err("clipboard read failed"),
   )
 }
 
 ///|
 test "write_text_result handles unsupported clipboard" {
-  assert_eq(
-    write_text_result(false, 1, @utf8.encode("ignored")),
+  assert_true(
+    write_text_result(false, 1, @utf8.encode("ignored")) ==
     Err(unsupported_error_message()),
   )
 }
 
 ///|
 test "write_text_result handles success and error cases" {
-  assert_eq(write_text_result(true, 0, @utf8.encode("")), Ok(()))
-  assert_eq(
-    write_text_result(true, 1, @utf8.encode("permission denied")),
+  assert_true(write_text_result(true, 0, @utf8.encode("")) == Ok(()))
+  assert_true(
+    write_text_result(true, 1, @utf8.encode("permission denied")) ==
     Err("permission denied"),
   )
-  assert_eq(
-    write_text_result(true, 1, @utf8.encode("")),
+  assert_true(
+    write_text_result(true, 1, @utf8.encode("")) ==
     Err("clipboard write failed"),
   )
 }
 
 ///|
 test "read_text_with covers supported and unsupported wrapper paths" {
-  assert_eq(
+  assert_true(
     read_text_with(true, fn() { @utf8.encode("wrapped") }, fn() { 0 }, fn() {
       @utf8.encode("")
-    }),
+    }) ==
     Ok(Some("wrapped")),
   )
-  assert_eq(
+  assert_true(
     read_text_with(false, fn() { @utf8.encode("ignored") }, fn() { 1 }, fn() {
       @utf8.encode("ignored")
-    }),
+    }) ==
     Err(unsupported_error_message()),
   )
 }
 
 ///|
 test "write_text_with covers supported and unsupported wrapper paths" {
-  assert_eq(
+  assert_true(
     write_text_with(
       true,
       "wrapped",
@@ -115,13 +115,13 @@ test "write_text_with covers supported and unsupported wrapper paths" {
         }
       },
       fn() { @utf8.encode("") },
-    ),
+    ) ==
     Ok(()),
   )
-  assert_eq(
+  assert_true(
     write_text_with(false, "ignored", fn(_bytes) { 1 }, fn() {
       @utf8.encode("ignored")
-    }),
+    }) ==
     Err(unsupported_error_message()),
   )
 }
