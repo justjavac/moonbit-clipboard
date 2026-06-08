@@ -54,7 +54,7 @@ jobs:
 
       - name: Check examples module
         shell: bash
-        run: moon check --manifest-path examples/moon.mod.json --target native
+        run: moon -C examples check --target native
 
       - name: Coverage XML
         shell: bash
@@ -90,5 +90,5 @@ jobs:
         run: |
           moon fmt --check
           moon info --target native
-          moon check --manifest-path examples/moon.mod.json --target native
+          moon -C examples check --target native
           git diff --exit-code
