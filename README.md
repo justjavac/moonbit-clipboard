@@ -52,16 +52,16 @@ On Linux, at least one supported clipboard tool must be available on `PATH`.
 ## Examples
 
 ```bash
-moon run --manifest-path examples/moon.mod.json check_support
-moon run --manifest-path examples/moon.mod.json read_text
-moon run --manifest-path examples/moon.mod.json write_text
+moon -C examples run check_support
+moon -C examples run read_text
+moon -C examples run write_text
 ```
 
 ## Test
 
 ```bash
 moon test --target native
-moon check --manifest-path examples/moon.mod.json --target native
+moon -C examples check --target native
 ```
 
 Integration test:

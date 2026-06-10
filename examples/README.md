@@ -3,7 +3,7 @@
 Run the examples from the repository root:
 
 ```bash
-moon run --manifest-path examples/moon.mod.json check_support
-moon run --manifest-path examples/moon.mod.json read_text
-moon run --manifest-path examples/moon.mod.json write_text
+moon -C examples run check_support
+moon -C examples run read_text
+moon -C examples run write_text
 ```

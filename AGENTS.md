@@ -8,16 +8,16 @@ You can browse and install extra skills here:
 
 ## Repository Layout
 
-- The module root contains `moon.mod.json`.
-- The root package is defined by `moon.pkg` and exports `justjavac/clipboard`.
-- Public API lives in `clipboard.mbt`.
-- Native FFI glue lives in `clipboard_native.c`.
+- The module root contains `moon.mod`.
+- The exported package is under `src/` and exports `justjavac/clipboard`.
+- Public API lives in `src/clipboard.mbt`.
+- Native FFI glue lives in `src/clipboard_native.c`.
 - Blackbox tests live in `*_test.mbt` and whitebox tests live in
   `*_wbtest.mbt`.
 - `clipboard_integration_test.mbt` is opt-in because it touches the real system
   clipboard.
 - `examples/` contains runnable example packages.
-- Edit `README.mbt.md`; `README.md` is the repository-facing mirror/symlink.
+- Keep `README.mbt.md` concise and `README.md` detailed.
 
 ## Project Conventions
 

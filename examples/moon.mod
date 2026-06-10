@@ -1,11 +1,11 @@
 name = "justjavac/clipboard/examples"
 
-version = "0.1.5"
+version = "0.1.7"
 
 readme = "README.md"
 
 import {
-  "justjavac/clipboard@0.1.6",
+  "justjavac/clipboard@0.1.7",
 }
 
 repository = "https://github.com/justjavac/moonbit-clipboard/tree/main/examples"
